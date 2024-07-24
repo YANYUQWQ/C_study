@@ -1,0 +1,115 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+//#define true 1
+//#define false 0
+//typedef char boolen;
+
+typedef struct Case{
+	int case_;
+	int length;
+	int *arr;
+}Case;
+typedef struct Store{
+	int arr2[3];
+	struct Store* next;
+}Store,*StoreList;
+
+int sub_sum(const int *arr,int length){ //求数组和
+	int i,sum=0;
+	for(i=0;i<length;i++)
+		sum=sum+arr[i];
+	return sum;
+}
+int find_max(const int *arr, int length){ //全为负时找出最大值，返回位置
+	int max=0,i=0,m_i=0;
+	max=arr[0];
+	m_i=0;
+	for(i=1;i<length;i++)
+		if(max<arr[i])
+			{max=arr[i];
+			m_i=i;}
+	return m_i+1;
+}
+int main(){
+	int Case_total,N=0,i,j,k,m,length=0,max=0,temp_sum=0,p_sum=0;
+	Case *sample;
+	StoreList L; 
+	Store* LP,*sp;
+	L=(Store*)malloc(sizeof(Store));
+	L->next=NULL;
+	LP=L; //记录头节点
+
+	scanf("%d",&Case_total); //输入段
+	sample=(Case*)malloc(sizeof(Case)*Case_total);
+	for(i=0;i<Case_total;i++)
+	{	scanf("%d",&N);
+		sample[i].arr=(int *)malloc(sizeof(int)*(N+1));
+		sample[i].arr[0]=N;
+		sample[i].length=N;
+		sample[i].case_=i+1;
+		for(j=1;j<=N;j++)
+			scanf("%d",&sample[i].arr[j]);
+	}
+	for(i=0;i<Case_total;i++)  //计算段
+	{	printf("当前case:%d\n",i);
+		j=1,k=0,m=0;
+		while(sample[i].arr[j]<0) //找出前面第一个不为负数下标
+			j++;   
+		if(j>sample[i].length)
+			m=find_max(&sample[i].arr[1],sample[i].length);	//全为则找出最大的负值，即就是大子串
+		else {												
+		while(sample[i].arr[j+k]>=0) // 找出前面连续正数长度  
+			k++;
+		length=k-1;
+		p_sum=sub_sum(&sample[i].arr[j],length); //求出这段数和 （还可以写一个算后面\甚至改进算每一个连续非负数段和、可以加flag控制当前是正数还是负数）
+
+		for(length=1;length<=sample[i].length;length++)
+		{	for(j=1;j+length-1<=sample[i].length;j++)
+				if(sample[i].arr[j]>0 || sample[i].arr[j+length-1]>0)  //端头为负 肯定不是最小列
+					{temp_sum=sub_sum(&sample[i].arr[j],length);	// 求当前子列和
+					 if(temp_sum>=p_sum)					//和与之前相比大才可能是最大和子列  减少储存空间
+					 {	sp=(Store*)malloc(sizeof(Store)); //将和、始末位置存入
+						sp->arr2[0]=temp_sum;
+						sp->arr2[1]=j;
+						sp->arr2[2]=j+length-1;
+						sp->next=LP->next;
+						LP->next=sp;
+					 }
+					}
+		}
+		while (LP!=NULL)	//查询存入空间的最大值
+		{	if(max<=LP->arr2[0])
+			{	sp=LP;
+				max=sp->arr2[0];
+			}
+			LP=LP->next;
+		}	
+		printf("the max_sum_sub is");		//输出段
+		for (j=sp->arr2[1];j<=sp->arr2[2];j++)
+			printf("  %d  ",sample[i].arr[j]);
+		printf("\n the max is %d \n ",sp->arr2[0]);
+
+		LP=L->next;		//释放链表空间
+		while (LP!=NULL)
+		{	sp=LP;
+			LP=LP->next; 
+			L->next=LP;  //这里好坑啊，链表头下一个也得指向新LP空间
+			free(sp);
+		}
+		LP=L;
+		}
+		if(m!=0)
+		printf("the max_sub is only one: %d \n",sample[i].arr[m]);
+	
+	}
+
+	for(i=0;i<Case_total;i++)
+		free(sample[i].arr);
+	free (L);
+	L=NULL;
+	free (sample);
+	sample=NULL;
+    return 0;
+}
