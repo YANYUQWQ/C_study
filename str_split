@@ -1,0 +1,15 @@
+void Str_Split(string sourse, string flag, vector<string> &res) {
+	size_t pos = 0;
+	size_t f_len = flag.length();
+	if (sourse == "") return;
+	string str = sourse + flag;		//加分割串便于操作最后部分
+	while (pos != str.npos)
+	{
+		pos = str.find(flag);
+		string temp = str.substr(0, pos);
+		res.push_back(temp);
+
+		str = str.substr(pos + f_len,str.length());
+		pos = str.find(flag);
+	}
+}
