@@ -1,1 +1,14 @@
-二分查找 
+int BySearch(int *arr, int ele, int begin, int end) {
+	if (begin > end)
+		return -1;
+	else
+	{
+		int mid = (begin + end) / 2;
+		if (ele == arr[mid])
+			return mid;
+		else if (ele < arr[mid])
+			return BySearch(arr, ele, begin, mid - 1);
+		else
+			return BySearch(arr, ele, mid + 1, end);
+	}
+}
